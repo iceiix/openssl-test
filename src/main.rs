@@ -3,6 +3,8 @@ use openssl::rand::rand_bytes;
 use openssl::rsa::{Rsa, Padding};
 
 extern crate num;
+use num::bigint::BigUint;
+
 extern crate simple_asn1;
 use simple_asn1::{from_der, ASN1Block};
 
@@ -34,15 +36,17 @@ fn main() {
     }
     let mut result: Vec<Vec<u8>> = vec![];
     find_bitstrings(asns, &mut result);
-    println!("result[0] = {:?}", result[0]);
+    let modulus_bytes = &result[0];
+    println!("modulus_bytes = {:?}", modulus_bytes);
+    // TODO: ASN.1 BitString to bignum?
+    let modulus = BigUint::from_bytes_be(&modulus_bytes);
+    println!("modulus = {:}", modulus);
 
     let rsa = Rsa::public_key_from_der(&packet_public_key_data).unwrap();
-    /*
     let mut shared = [0; 16];
     rand_bytes(&mut shared).unwrap();
     println!("shared = {:?}!", shared);
-    */
-    let shared = [180, 233, 250, 239, 186, 185, 101, 205, 175, 174, 26, 1, 88, 93, 213, 250];
+    //let shared = [180, 233, 250, 239, 186, 185, 101, 205, 175, 174, 26, 1, 88, 93, 213, 250];
     let packet_verify_token_data = [225, 26, 51, 196];
 
     let mut shared_e = vec![0; rsa.size() as usize];
