@@ -2,6 +2,8 @@ extern crate openssl;
 use openssl::rand::rand_bytes;
 use openssl::rsa::{Rsa, Padding};
 
+extern crate num;
+
 fn main() {
     /*
      $ openssl asn1parse -inform DER -in /tmp/d
