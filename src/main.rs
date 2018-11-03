@@ -7,6 +7,7 @@ use num::bigint::{BigInt};
 
 extern crate simple_asn1;
 use simple_asn1::{from_der, ASN1Block};
+use num::bigint::ToBigInt;
 
 fn find_bitstrings(asns: Vec<ASN1Block>, mut result: &mut Vec<Vec<u8>>) {
     for asn in asns.iter() {
@@ -60,6 +61,16 @@ fn main() {
     let n = n.unwrap();
     let e = e.unwrap();
     println!("N={:?}\ne={:?}", n, e);
+
+    // TODO: real message
+    // TODO: PKCS#1 padding
+    let message_bigint = 1234_i32.to_bigint().unwrap();
+    let ciphertext_bigint = message_bigint.modpow(&e, &n);
+    // TODO: convert bigint to octet string
+    // 4.1. I2OSP https://tools.ietf.org/html/rfc8017#section-4.1
+
+    println!("message = {:?}", message_bigint);
+    println!("ciphertext = {:?}", ciphertext_bigint);
 
 
     let rsa = Rsa::public_key_from_der(&packet_public_key_data).unwrap();
