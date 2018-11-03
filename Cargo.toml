@@ -6,3 +6,4 @@ edition = "2018"
 [dependencies]
 openssl = "0.10.15"
 num = "0.2.0"
+simple_asn1 = "0.1.0"
