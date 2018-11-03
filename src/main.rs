@@ -62,18 +62,35 @@ fn main() {
     let e = e.unwrap();
     println!("N={:?}\ne={:?}", n, e);
 
-    let message = [1,2,3,4];
+    let mut message = vec![1,2,3,4];
+
+    // PKCS#1 padding https://tools.ietf.org/html/rfc8017#section-7.2.1 RSAES-PKCS1-V1_5-ENCRYPT ((n, e), M)
+    let k = n.bits() / 8; // bytes in modulus
+    if k != 1024/8 { panic!("expected 1024-bit modulus"); }
+    println!("k = {}", k);
+
+    if message.len() > k - 11 {
+        panic!("message too long");
+    }
+    let mut padding = vec![0; k - message.len() - 3];
+    rand_bytes(&mut padding).unwrap();
+
+    let mut encoded_m = vec![0x00, 0x02];
+    encoded_m.append(&mut padding.to_vec());
+    encoded_m.append(&mut vec![0x00]);
+    encoded_m.append(&mut message);
+    println!("encoded_m = {:?}", encoded_m);
 
     // TODO: ensure this is OS2IP https://tools.ietf.org/html/rfc8017#section-4.2
-    let message_bigint = BigInt::from_bytes_be(num::bigint::Sign::Plus, &message);
+    let m = BigInt::from_bytes_be(num::bigint::Sign::Plus, &encoded_m);
 
     // TODO: PKCS#1 padding
     //
-    let ciphertext_bigint = message_bigint.modpow(&e, &n);
+    let ciphertext_bigint = m.modpow(&e, &n);
     // TODO: convert bigint to octet string
     // 4.1. I2OSP https://tools.ietf.org/html/rfc8017#section-4.1
 
-    println!("message = {:?}", message_bigint);
+    println!("m = {:?}", m);
     println!("ciphertext = {:?}", ciphertext_bigint);
 
 
