@@ -4,7 +4,6 @@ use openssl::rsa::{Rsa, Padding};
 
 extern crate num;
 use num::bigint::{BigInt};
-use num::traits::Zero;
 
 extern crate simple_asn1;
 use simple_asn1::{from_der, ASN1Block};
@@ -41,30 +40,26 @@ fn main() {
 
     let inner_asn: Vec<ASN1Block> = from_der(&result[0]).unwrap();
     println!("inner_asn {:?}", inner_asn[0]);
+    let (n, e) =
     match &inner_asn[0] {
         ASN1Block::Sequence(_, _, blocks) => {
-            let zero = Zero::zero();
-            let n: &BigInt = match &blocks[0] {
-                ASN1Block::Integer(_, _, n) => n,
-                _ => &zero,
+            let n = match &blocks[0] {
+                ASN1Block::Integer(_, _, n) => Some(n),
+                _ => None,
             };
 
-            let e: &BigInt = match &blocks[1] {
-                ASN1Block::Integer(_, _, n) => n,
-                _ => &zero,
+            let e = match &blocks[1] {
+                ASN1Block::Integer(_, _, e) => Some(e),
+                _ => None,
             };
+            (n, e)
 
-            println!("N={:?}\ne={:?}", n, e);
         },
-        _ => (),
-    }
-
-/*
-    println!("modulus_bytes = {:?}", modulus_bytes);
-    // TODO: ASN.1 BitString to bignum?
-    let modulus = BigUint::from_bytes_be(&modulus_bytes);
-    println!("modulus = {:}", modulus);
-    */
+        _ => (None, None)
+    };
+    let n = n.unwrap();
+    let e = e.unwrap();
+    println!("N={:?}\ne={:?}", n, e);
 
 
     let rsa = Rsa::public_key_from_der(&packet_public_key_data).unwrap();
