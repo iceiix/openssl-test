@@ -7,3 +7,4 @@ edition = "2018"
 openssl = "0.10.15"
 num = "0.2.0"
 simple_asn1 = { git = "https://github.com/acw/simple_asn1", rev = "823fc31f6f9ba0636207226901f46d50eb1fdd01" }
+hex-literal = "0.1.1"
